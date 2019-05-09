@@ -440,7 +440,7 @@ public class Parser {
                 return;
             }
             switch(peek().type) {
-                case DATA:
+                case CLASS:
                 case FUN:
                 case IF:
                 case IMPORT:
