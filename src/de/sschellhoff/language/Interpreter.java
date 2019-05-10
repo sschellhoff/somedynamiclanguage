@@ -3,17 +3,26 @@ package de.sschellhoff.language;
 import de.sschellhoff.language.ast.*;
 
 import javax.security.auth.callback.LanguageCallback;
+import java.io.EOFException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Interpreter implements Visitor<Object> {
+    private final ErrorWriter errorWriter;
     private final Environment globals = new Environment();
     private Environment environment = globals;
     private final Map<Expr, Integer> locals = new HashMap<>();
 
-    public Interpreter() {
+    public Interpreter(ErrorWriter errorWriter) {
+        this.errorWriter = errorWriter;
         globals.define(Token.identifier("clock"), new LangCallable() {
 
             @Override
@@ -451,6 +460,34 @@ public class Interpreter implements Visitor<Object> {
         }
         LangClass _class = new LangClass(stmt.name, methods);
         environment.assign(stmt.name, _class);
+        return null;
+    }
+
+    @Override
+    public Object visitImportStmt(ImportStmt stmt) {
+        try {
+            String sourcecode = new String(Files.readAllBytes(Paths.get(stmt.filename)));
+            Scanner scanner = new Scanner(sourcecode, errorWriter);
+            List<Token> tokens = scanner.scan();
+            if(scanner.hadError()) {
+                throw new RuntimeError(stmt.keyword, "Cannot scan file");
+            }
+            Parser parser = new Parser(tokens, errorWriter);
+            List<Stmt> program = parser.parse();
+            if(parser.hadError()) {
+                throw new RuntimeError(stmt.keyword, "Cannot parse file");
+            }
+            Resolver resolver = new Resolver(this, errorWriter);
+            resolver.resolve(program);
+            if(resolver.hadError()) {
+                throw new RuntimeError(stmt.keyword, "Cannot resolve file");
+            }
+            if(!this.interpret(program)) {
+                throw new RuntimeError(stmt.keyword, "Cannot execute file");
+            }
+        } catch (IOException e) {
+            throw new RuntimeError(stmt.keyword, "cannot open file '" + stmt.filename + "'");
+        }
         return null;
     }
 

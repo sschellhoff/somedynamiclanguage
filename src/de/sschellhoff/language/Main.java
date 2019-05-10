@@ -10,7 +10,7 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-        boolean print = true;
+        boolean print = false;
         boolean evaluate = true;
         String sourcecode = "";
         if(args.length > 1) {
@@ -42,7 +42,7 @@ public class Main {
             printer.print(program);
         }
         if(evaluate) {
-            Interpreter interpreter = new Interpreter();
+            Interpreter interpreter = new Interpreter(errorWriter);
             Resolver resolver = new Resolver(interpreter, errorWriter);
             resolver.resolve(program);
             if(resolver.hadError()) {

@@ -22,6 +22,7 @@ import de.sschellhoff.language.ast.ContinueStmt;
 import de.sschellhoff.language.ast.FuncDefStmt;
 import de.sschellhoff.language.ast.ReturnStmt;
 import de.sschellhoff.language.ast.ClassDeclStmt;
+import de.sschellhoff.language.ast.ImportStmt;
 
 public interface Visitor<R> {
 	R visitAssignExpr(AssignExpr expr);
@@ -46,4 +47,5 @@ public interface Visitor<R> {
 	R visitFuncDefStmt(FuncDefStmt stmt);
 	R visitReturnStmt(ReturnStmt stmt);
 	R visitClassDeclStmt(ClassDeclStmt stmt);
+	R visitImportStmt(ImportStmt stmt);
 }

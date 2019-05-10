@@ -99,6 +99,7 @@ def main():
     ast_data.append(("FuncDefStmt", [base_package + ".Token", "java.util.List"], [("Token", "name"), ("List<Token>", "parameters"), ("Stmt", "body")], "Stmt"))
     ast_data.append(("ReturnStmt", [base_package + ".Token"], [("Token", "keyword"), ("Expr", "value")], "Stmt"))
     ast_data.append(("ClassDeclStmt", [base_package + ".Token", "java.util.List"], [("Token", "name"), ("List<FuncDefStmt>", "methods")], "Stmt"))
+    ast_data.append(("ImportStmt", [base_package + ".Token"], [("Token", "keyword"), ("String", "filename")], "Stmt"))
     types = []
     for data in ast_data:
         ast_type = AstType(data[0], package, [base_package + ".Visitor"] + data[1], data[2], data[3])

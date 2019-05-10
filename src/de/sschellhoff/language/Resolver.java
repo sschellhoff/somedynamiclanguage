@@ -275,4 +275,10 @@ public class Resolver implements Visitor<Void> {
         currentClass = enclosingClass;
         return null;
     }
+
+    @Override
+    public Void visitImportStmt(ImportStmt stmt) {
+        // NOTHING TODO HERE
+        return null;
+    }
 }

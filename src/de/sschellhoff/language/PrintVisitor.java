@@ -138,6 +138,11 @@ public class PrintVisitor implements Visitor<String> {
     }
 
     @Override
+    public String visitImportStmt(ImportStmt stmt) {
+        return "(import " + stmt.filename + ")";
+    }
+
+    @Override
     public String visitVarExpr(VarExpr expr) {
         return parenthesize(expr.name.lexeme);
     }

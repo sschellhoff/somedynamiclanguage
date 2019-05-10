@@ -20,7 +20,7 @@ public class Parser {
     public List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
-            statements.add(statement());
+            statements.add(top_level_statement());
         }
         return statements;
     }
@@ -31,6 +31,14 @@ public class Parser {
 
     private boolean isInLoop() {
         return numOpenLoops > 0;
+    }
+
+    private Stmt top_level_statement() {
+        if (peek().type == TokenType.IMPORT) {
+            return importStmt();
+        } else {
+            return statement();
+        }
     }
 
     private Stmt statement() {
@@ -65,6 +73,13 @@ public class Parser {
             synchronize_error();
             return null;
         }
+    }
+
+    private Stmt importStmt() {
+        Token keyword = consume_or_error(TokenType.IMPORT, "expected import statement");
+        Token filename = consume_or_error(TokenType.STRING, "expected filename");
+        match_or_error(TokenType.SEMICOLON, "expected ; at the end of the statement");
+        return new ImportStmt(keyword, filename.literal.toString());
     }
 
     private FuncDefStmt function_definition(String function_type) {
