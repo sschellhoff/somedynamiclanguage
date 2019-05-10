@@ -1,4 +1,4 @@
-import "/home/jacko/IdeaProjects/InterpretedLanguage/programs/node.prg";
+import "node.prg";
 
 class LinkedList {
   fun init() {

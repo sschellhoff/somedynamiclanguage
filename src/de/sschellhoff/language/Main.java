@@ -4,6 +4,7 @@ import de.sschellhoff.language.ast.Stmt;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -13,14 +14,15 @@ public class Main {
         boolean print = false;
         boolean evaluate = true;
         String sourcecode = "";
-        if(args.length > 1) {
-            System.err.println("too many parameters!");
+        String startingPath = "";
+        if(args.length != 1) {
+            System.err.println("You must specify a file as parameter!");
             System.exit(64);
-        } else if(args.length == 0) {
-            sourcecode = "{ fun test() { return 1337; } { print test(); } }";
         } else {
             try {
-                sourcecode = new String(Files.readAllBytes(Paths.get(args[0])));
+                Path startingFile = Misc.toAbsolutePath(args[0], Misc.getWorkingDirectory());
+                startingPath = Misc.getDirectory(startingFile.toString());
+                sourcecode = new String(Files.readAllBytes(startingFile));
             } catch (IOException e) {
                 System.err.println("cannot open the specified file!");
                 System.exit(66);
@@ -42,7 +44,7 @@ public class Main {
             printer.print(program);
         }
         if(evaluate) {
-            Interpreter interpreter = new Interpreter(errorWriter);
+            Interpreter interpreter = new Interpreter(startingPath, errorWriter);
             Resolver resolver = new Resolver(interpreter, errorWriter);
             resolver.resolve(program);
             if(resolver.hadError()) {

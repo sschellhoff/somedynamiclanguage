@@ -4,6 +4,7 @@ import de.sschellhoff.language.ast.*;
 
 import javax.security.auth.callback.LanguageCallback;
 import java.io.EOFException;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,9 +21,11 @@ public class Interpreter implements Visitor<Object> {
     private final Environment globals = new Environment();
     private Environment environment = globals;
     private final Map<Expr, Integer> locals = new HashMap<>();
+    private String currentPath;
 
-    public Interpreter(ErrorWriter errorWriter) {
+    public Interpreter(String startingPath, ErrorWriter errorWriter) {
         this.errorWriter = errorWriter;
+        this.currentPath = startingPath;
         globals.define(Token.identifier("clock"), new LangCallable() {
 
             @Override
@@ -465,8 +468,12 @@ public class Interpreter implements Visitor<Object> {
 
     @Override
     public Object visitImportStmt(ImportStmt stmt) {
+        String oldPath = currentPath;
         try {
-            String sourcecode = new String(Files.readAllBytes(Paths.get(stmt.filename)));
+            Path filepath = Misc.toAbsolutePath(stmt.filename, currentPath);
+            currentPath = Misc.getDirectory(filepath).toString();
+
+            String sourcecode = new String(Files.readAllBytes(filepath));
             Scanner scanner = new Scanner(sourcecode, errorWriter);
             List<Token> tokens = scanner.scan();
             if(scanner.hadError()) {
@@ -487,6 +494,8 @@ public class Interpreter implements Visitor<Object> {
             }
         } catch (IOException e) {
             throw new RuntimeError(stmt.keyword, "cannot open file '" + stmt.filename + "'");
+        } finally {
+            currentPath = oldPath;
         }
         return null;
     }

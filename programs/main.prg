@@ -1,4 +1,4 @@
-import "/home/jacko/IdeaProjects/InterpretedLanguage/programs/list.prg";
+import "list/list.prg";
 
 fun main() {
   var list = LinkedList();
