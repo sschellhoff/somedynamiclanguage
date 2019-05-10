@@ -12,6 +12,7 @@ public class Resolver implements Visitor<Void> {
     private final Interpreter interpreter;
     private final Stack<HashMap<String, Boolean>> scopes = new Stack<>();
     private FunctionType currentFunction = FunctionType.NONE;
+    private ClassType currentClass = ClassType.NONE;
     private boolean hadError = false;
 
     public Resolver(Interpreter interpreter, ErrorWriter errorWriter) {
@@ -152,6 +153,29 @@ public class Resolver implements Visitor<Void> {
     }
 
     @Override
+    public Void visitGetExpr(GetExpr expr) {
+        resolve(expr.object);
+        return null;
+    }
+
+    @Override
+    public Void visitSetExpr(SetExpr expr) {
+        resolve(expr.value);
+        resolve(expr.object);
+        return null;
+    }
+
+    @Override
+    public Void visitThisExpr(ThisExpr expr) {
+        if(currentClass == ClassType.NONE) {
+            make_error(expr.keyword, "You cannot use if outside of classes");
+            return null;
+        }
+        resolveLocal(expr, expr.keyword);
+        return null;
+    }
+
+    @Override
     public Void visitExprStmt(ExprStmt stmt) {
         resolve(stmt.expr);
         return null;
@@ -224,6 +248,9 @@ public class Resolver implements Visitor<Void> {
             make_error(stmt.keyword, "You cannot return from top-level code");
         }
         if(stmt.value != null) {
+            if(currentFunction == FunctionType.INITIALIZER) {
+                make_error(stmt.keyword, "You cannot return an explicit value from a constructor");
+            }
             resolve(stmt.value);
         }
         return null;
@@ -231,6 +258,21 @@ public class Resolver implements Visitor<Void> {
 
     @Override
     public Void visitClassDeclStmt(ClassDeclStmt stmt) {
+        ClassType enclosingClass = currentClass;
+        currentClass = ClassType.CLASS;
+        declare(stmt.name);
+        beginScope();
+        scopes.peek().put("this", true);
+        for(FuncDefStmt method : stmt.methods) {
+            FunctionType declaration = FunctionType.METHOD;
+            if(method.name.lexeme.equals("init")) {
+                declaration = FunctionType.INITIALIZER;
+            }
+            resolveFunction(method, declaration);
+        }
+        define(stmt.name);
+        endScope();
+        currentClass = enclosingClass;
         return null;
     }
 }

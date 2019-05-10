@@ -38,6 +38,8 @@ public class Parser {
             switch (peek().type) {
                 case FUN:
                     return function_definition("function");
+                case CLASS:
+                    return class_definition();
                 case RETURN:
                     return returnStmt();
                 case IF:
@@ -78,6 +80,18 @@ public class Parser {
         consume_or_error(TokenType.RIGHT_PAREN, "Expected ) after parameter list");
         Stmt body = block();
         return new FuncDefStmt(name, parameters, body);
+    }
+
+    private Stmt class_definition() {
+        match_or_error(TokenType.CLASS, "expected class definition");
+        Token name = consume_or_error(TokenType.IDENTIFIER, "expected class name");
+        match_or_error(TokenType.LEFT_BRACE, "expected class body");
+        List<FuncDefStmt> methods = new ArrayList<>();
+        while(!check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
+            methods.add(function_definition("method"));
+        }
+        consume_or_error(TokenType.RIGHT_BRACE, "expected } to close the class body");
+        return new ClassDeclStmt(name, methods);
     }
 
     private Stmt returnStmt() {
@@ -231,6 +245,9 @@ public class Parser {
             if(expr instanceof VarExpr) {
                 Token name = ((VarExpr)expr).name;
                 return new AssignExpr(name, value);
+            } else if(expr instanceof GetExpr) {
+                GetExpr get = (GetExpr)expr;
+                return new SetExpr(get.object, get.name, value);
             }
             make_error(equals, "invalid assignment target");
         }
@@ -326,6 +343,9 @@ public class Parser {
         while(true) {
             if (match(TokenType.LEFT_PAREN)) {
                 expr = finish_call(expr);
+            } else if(match(TokenType.DOT)) {
+                Token name = consume_or_error(TokenType.IDENTIFIER, "expected property");
+                expr = new GetExpr(expr, name);
             } else {
                 break;
             }
@@ -348,6 +368,9 @@ public class Parser {
     private Expr primary() {
         if(match(TokenType.IDENTIFIER)) {
             return new VarExpr(previous());
+        }
+        if(match(TokenType.THIS)) {
+            return new ThisExpr(previous());
         }
         if(match(TokenType.FALSE)) {
             return new LiteralExpr(false);

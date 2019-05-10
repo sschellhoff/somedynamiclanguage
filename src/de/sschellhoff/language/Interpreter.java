@@ -2,6 +2,7 @@ package de.sschellhoff.language;
 
 import de.sschellhoff.language.ast.*;
 
+import javax.security.auth.callback.LanguageCallback;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -426,7 +427,7 @@ public class Interpreter implements Visitor<Object> {
 
     @Override
     public Object visitFuncDefStmt(FuncDefStmt stmt) {
-        LangFunction function = new LangFunction(stmt, environment);
+        LangFunction function = new LangFunction(stmt, environment, false);
         environment.define(stmt.name, function);
         return null;
     }
@@ -442,6 +443,14 @@ public class Interpreter implements Visitor<Object> {
 
     @Override
     public Object visitClassDeclStmt(ClassDeclStmt stmt) {
+        environment.define(stmt.name, null);
+        Map<String, LangFunction> methods = new HashMap<>();
+        for(FuncDefStmt method: stmt.methods) {
+            LangFunction function = new LangFunction(method, environment, method.name.lexeme.equals("init"));
+            methods.put(method.name.lexeme, function);
+        }
+        LangClass _class = new LangClass(stmt.name, methods);
+        environment.assign(stmt.name, _class);
         return null;
     }
 
@@ -479,6 +488,32 @@ public class Interpreter implements Visitor<Object> {
         }
 
         return function.call(this, arguments);
+    }
+
+    @Override
+    public Object visitGetExpr(GetExpr expr) {
+        Object object = evaluate(expr.object);
+        if(object instanceof LangInstance) {
+            return ((LangInstance)object).get(expr.name);
+        }
+        throw new RuntimeError(expr.name, "You can only access the properties of instances");
+    }
+
+    @Override
+    public Object visitSetExpr(SetExpr expr) {
+        Object object = evaluate(expr.object);
+        if(!(object instanceof LangInstance)) {
+            throw new RuntimeError(expr.name, "You can only access the properties of instances");
+        }
+
+        Object value = evaluate(expr.value);
+        ((LangInstance)object).set(expr.name, value);
+        return value;
+    }
+
+    @Override
+    public Object visitThisExpr(ThisExpr expr) {
+        return lookUpVariable(expr.keyword, expr);
     }
 
     @Override

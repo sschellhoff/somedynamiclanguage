@@ -83,6 +83,9 @@ def main():
     ast_data.append(("VarExpr", [base_package + ".Token"], [("Token", "name")], "Expr"))
     ast_data.append(("TernaryExpr", [], [("Expr", "condition"), ("Expr", "then_case"), ("Expr", "else_case")], "Expr"))
     ast_data.append(("CallExpr", [base_package + ".Token", "java.util.List"], [("Expr", "callee"), ("Token", "paren"), ("List<Expr>", "arguments")], "Expr"))
+    ast_data.append(("GetExpr", [base_package + ".Token"], [("Expr", "object"), ("Token", "name")], "Expr"))
+    ast_data.append(("SetExpr", [base_package + ".Token"], [("Expr", "object"), ("Token", "name"), ("Expr", "value")], "Expr"))
+    ast_data.append(("ThisExpr", [base_package + ".Token"], [("Token", "keyword")], "Expr"))
 
     ast_data.append(("Stmt", [], None, None))
     ast_data.append(("ExprStmt", [], [("Expr", "expr")], "Stmt"))

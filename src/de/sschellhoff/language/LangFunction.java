@@ -8,10 +8,18 @@ import java.util.List;
 public class LangFunction implements LangCallable {
     private final FuncDefStmt declaration;
     private final Environment closure;
+    private final boolean isInitializer;
 
-    public LangFunction(FuncDefStmt declaration, Environment closure) {
+    public LangFunction(FuncDefStmt declaration, Environment closure, boolean isInitializer) {
         this.declaration = declaration;
         this.closure = closure;
+        this.isInitializer = isInitializer;
+    }
+
+    public LangFunction bind(LangInstance instance) {
+        Environment environment = new Environment(closure);
+        environment.define(Token.identifier("this"), instance);
+        return new LangFunction(declaration, environment, isInitializer);
     }
 
     @Override
@@ -23,7 +31,13 @@ public class LangFunction implements LangCallable {
         try {
             interpreter.executeBlock(((BlockStmt) declaration.body).stmts, new Environment(environment));
         } catch(ReturnException re) {
+            if(isInitializer) {
+                return closure.getAt(0, Token.identifier("this"));
+            }
             return re.value;
+        }
+        if(isInitializer) {
+            return closure.getAt(0, Token.identifier("this"));
         }
         return null;
     }
