@@ -116,7 +116,7 @@ public class Scanner {
                 addToken(TokenType.DOT);
                 break;
             case '?':
-                addToken(TokenType.QUESTION_MARK);
+                addToken(match('?') ? TokenType.NULL_COALESCING : match('.') ? TokenType.NULL_COND_OP : TokenType.QUESTION_MARK);
                 break;
             case ':':
                 addToken(TokenType.COLON);

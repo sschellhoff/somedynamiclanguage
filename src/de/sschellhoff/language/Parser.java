@@ -234,24 +234,11 @@ public class Parser {
     }
 
     private Expr expression() {
-        return ternary();
-    }
-
-    private Expr ternary() {
-        Expr condition = assignment();
-
-        if (match(TokenType.QUESTION_MARK)) {
-            Expr then_part = expression();
-            match_or_error(TokenType.COLON, "expected : as part of the ternary operator");
-            Expr else_part = expression();
-            return new TernaryExpr(condition, then_part, else_part);
-        }
-
-        return condition;
+        return assignment();
     }
 
     private Expr assignment() {
-        Expr expr = or();
+        Expr expr = ternary();
 
         if (match(TokenType.EQUAL)) {
             Token equals = previous();
@@ -268,6 +255,29 @@ public class Parser {
         }
 
         return expr;
+    }
+
+    private Expr ternary() {
+        Expr condition = null_coalescing();
+
+        while (match(TokenType.QUESTION_MARK)) {
+            Expr then_part = null_coalescing();
+            match_or_error(TokenType.COLON, "expected : as part of the ternary operator");
+            Expr else_part = null_coalescing();
+            return new TernaryExpr(condition, then_part, else_part);
+        }
+
+        return condition;
+    }
+
+    private Expr null_coalescing() {
+        Expr lhs = or();
+        while(match(TokenType.NULL_COALESCING)) {
+            Token operator = previous();
+            Expr rhs =  or();
+            lhs = new BinaryExpr(operator, lhs, rhs);
+        }
+        return lhs;
     }
 
     private Expr or() {
@@ -361,6 +371,10 @@ public class Parser {
             } else if(match(TokenType.DOT)) {
                 Token name = consume_or_error(TokenType.IDENTIFIER, "expected property");
                 expr = new GetExpr(expr, name);
+                // null conditional operator does not work like this
+            /*} else if(match(TokenType.NULL_COND_OP)) {
+                Token name = consume_or_error(TokenType.IDENTIFIER, "expected property");
+                expr = new NullCondOpExpr(expr, name);*/
             } else {
                 break;
             }

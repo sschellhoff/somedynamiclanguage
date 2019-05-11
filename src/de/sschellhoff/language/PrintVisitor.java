@@ -181,6 +181,11 @@ public class PrintVisitor implements Visitor<String> {
     }
 
     @Override
+    public String visitNullCondOpExpr(NullCondOpExpr expr) {
+        return parenthesize("?. " + expr.name.lexeme + " on " + expr.object);
+    }
+
+    @Override
     public String visitExprStmt(ExprStmt stmt) {
         return parenthesize("expr", stmt.expr);
     }

@@ -356,11 +356,19 @@ public class Interpreter implements Visitor<Object> {
                 }
                 return false;
             }
-            case OR:
-                if(!evaluateTruth(lhs)) {
+            case OR: {
+                if (!evaluateTruth(lhs)) {
                     return evaluateTruth(evaluate(expr.rhs));
                 }
                 return true;
+            }
+            case NULL_COALESCING: {
+                if(evaluateTruth(lhs)) {
+                    return lhs;
+                } else {
+                    return evaluate(expr.rhs);
+                }
+            }
         }
         return null;
     }
@@ -560,6 +568,17 @@ public class Interpreter implements Visitor<Object> {
     @Override
     public Object visitThisExpr(ThisExpr expr) {
         return lookUpVariable(expr.keyword, expr);
+    }
+
+    @Override
+    public Object visitNullCondOpExpr(NullCondOpExpr expr) {
+        Object object = evaluate(expr.object);
+        if(object == null) {
+            return null;
+        } else if(object instanceof LangInstance) {
+            return ((LangInstance)object).get(expr.name);
+        }
+        throw new RuntimeError(expr.name, "You can only access properties of instances");
     }
 
     @Override
