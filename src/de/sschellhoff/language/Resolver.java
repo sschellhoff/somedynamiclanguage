@@ -182,6 +182,12 @@ public class Resolver implements Visitor<Void> {
     }
 
     @Override
+    public Void visitNullCondTopExpr(NullCondTopExpr expr) {
+        resolve(expr.expr);
+        return null;
+    }
+
+    @Override
     public Void visitExprStmt(ExprStmt stmt) {
         resolve(stmt.expr);
         return null;

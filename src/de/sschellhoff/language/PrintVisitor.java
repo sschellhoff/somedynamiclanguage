@@ -186,6 +186,11 @@ public class PrintVisitor implements Visitor<String> {
     }
 
     @Override
+    public String visitNullCondTopExpr(NullCondTopExpr expr) {
+        return parenthesize(".? top", expr.expr);
+    }
+
+    @Override
     public String visitExprStmt(ExprStmt stmt) {
         return parenthesize("expr", stmt.expr);
     }

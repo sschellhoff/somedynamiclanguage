@@ -574,11 +574,20 @@ public class Interpreter implements Visitor<Object> {
     public Object visitNullCondOpExpr(NullCondOpExpr expr) {
         Object object = evaluate(expr.object);
         if(object == null) {
-            return null;
+            throw new NullConditionException();
         } else if(object instanceof LangInstance) {
             return ((LangInstance)object).get(expr.name);
         }
         throw new RuntimeError(expr.name, "You can only access properties of instances");
+    }
+
+    @Override
+    public Object visitNullCondTopExpr(NullCondTopExpr expr) {
+        try {
+            return evaluate(expr.expr);
+        } catch(NullConditionException nce) {
+            return null;
+        }
     }
 
     @Override

@@ -12,6 +12,7 @@ import de.sschellhoff.language.ast.GetExpr;
 import de.sschellhoff.language.ast.SetExpr;
 import de.sschellhoff.language.ast.ThisExpr;
 import de.sschellhoff.language.ast.NullCondOpExpr;
+import de.sschellhoff.language.ast.NullCondTopExpr;
 import de.sschellhoff.language.ast.ExprStmt;
 import de.sschellhoff.language.ast.PrintStmt;
 import de.sschellhoff.language.ast.VarDeclStmt;
@@ -38,6 +39,7 @@ public interface Visitor<R> {
 	R visitSetExpr(SetExpr expr);
 	R visitThisExpr(ThisExpr expr);
 	R visitNullCondOpExpr(NullCondOpExpr expr);
+	R visitNullCondTopExpr(NullCondTopExpr expr);
 	R visitExprStmt(ExprStmt stmt);
 	R visitPrintStmt(PrintStmt stmt);
 	R visitVarDeclStmt(VarDeclStmt stmt);

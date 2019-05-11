@@ -364,6 +364,7 @@ public class Parser {
 
     private Expr call() {
         Expr expr = primary();
+        boolean is_null_conditional = false;
 
         while(true) {
             if (match(TokenType.LEFT_PAREN)) {
@@ -371,15 +372,18 @@ public class Parser {
             } else if(match(TokenType.DOT)) {
                 Token name = consume_or_error(TokenType.IDENTIFIER, "expected property");
                 expr = new GetExpr(expr, name);
-                // null conditional operator does not work like this
-            /*} else if(match(TokenType.NULL_COND_OP)) {
+            } else if(match(TokenType.NULL_COND_OP)) {
+                is_null_conditional = true;
                 Token name = consume_or_error(TokenType.IDENTIFIER, "expected property");
-                expr = new NullCondOpExpr(expr, name);*/
+                expr = new NullCondOpExpr(expr, name);
             } else {
                 break;
             }
         }
 
+        if(is_null_conditional) {
+            expr = new NullCondTopExpr(expr);
+        }
         return expr;
     }
 
