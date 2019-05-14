@@ -50,9 +50,7 @@ public class Main {
             if(resolver.hadError()) {
                 System.exit(65);
             }
-            if(interpreter.interpret(program)) {
-                System.out.println("program done without errors!");
-            } else {
+            if(!interpreter.interpret(program)) {
                 System.exit(70);
             }
         }

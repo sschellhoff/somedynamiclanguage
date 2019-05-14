@@ -177,6 +177,11 @@ public class Resolver implements Visitor<Void> {
 
     @Override
     public Void visitSuperExpr(SuperExpr expr) {
+        if(currentClass != ClassType.SUBCLASS) {
+            make_error(expr.keyword, "You cannot use super without a superclass");
+        } else if(currentClass == ClassType.NONE) {
+            make_error(expr.keyword, "You cannot use super outside of a class");
+        }
         resolveLocal(expr, expr.keyword);
         return null;
     }
@@ -284,6 +289,7 @@ public class Resolver implements Visitor<Void> {
             if(stmt.name.lexeme.equals(stmt.superclass.name.lexeme)) {
                 make_error(stmt.superclass.name, "a class cannot inherit itself");
             }
+            currentClass = ClassType.SUBCLASS;
             resolve(stmt.superclass);
             beginScope();
             scopes.peek().put("super", true);

@@ -67,7 +67,7 @@ public class Scanner {
                 break;
             case '/':
                 if( match('/') ) {
-                    while ( peek() != '\n' ) {
+                    while ( peek() != '\n' && !isAtEnd()) {
                         advance();
                     }
                 } else {
