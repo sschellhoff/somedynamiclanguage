@@ -11,10 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Interpreter implements Visitor<Object> {
     private final ErrorWriter errorWriter;
@@ -22,10 +19,12 @@ public class Interpreter implements Visitor<Object> {
     private Environment environment = globals;
     private final Map<Expr, Integer> locals = new HashMap<>();
     private String currentPath;
+    private Set<String> loadedModules = new TreeSet<>();
 
-    public Interpreter(String startingPath, ErrorWriter errorWriter) {
+    public Interpreter(String startingFile, ErrorWriter errorWriter) {
         this.errorWriter = errorWriter;
-        this.currentPath = startingPath;
+        this.currentPath = Misc.getDirectory(startingFile);
+        loadedModules.add(startingFile);
         globals.define(Token.identifier("clock"), new LangCallable() {
 
             @Override
@@ -493,6 +492,11 @@ public class Interpreter implements Visitor<Object> {
         String oldPath = currentPath;
         try {
             Path filepath = Misc.toAbsolutePath(stmt.filename, currentPath);
+            String filepathString = filepath.toString();
+            if(loadedModules.contains(filepathString)) {
+                return null;
+            }
+            loadedModules.add(filepathString);
             currentPath = Misc.getDirectory(filepath).toString();
 
             String sourcecode = new String(Files.readAllBytes(filepath));

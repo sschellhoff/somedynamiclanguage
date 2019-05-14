@@ -10,27 +10,24 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-        String sourcecode = "";
-        String startingPath = "";
         if(args.length != 1) {
             System.err.println("You must specify a file as parameter!");
             System.exit(64);
         } else {
             try {
                 Path startingFile = Misc.toAbsolutePath(args[0], Misc.getWorkingDirectory());
-                startingPath = Misc.getDirectory(startingFile.toString());
-                sourcecode = new String(Files.readAllBytes(startingFile));
+                String sourcecode = new String(Files.readAllBytes(startingFile));
+                ErrorWriter errorWriter = new ConsoleErrorWriter();
+                Interpreter interpreter = new Interpreter(startingFile.toString(), errorWriter);
+                Frontend frontend = new Frontend(interpreter, errorWriter);
+                List<Stmt> program = frontend.build(sourcecode);
+                if(!interpreter.interpret(program)) {
+                    System.exit(70);
+                }
             } catch (IOException e) {
                 System.err.println("cannot open the specified file!");
                 System.exit(66);
             }
-        }
-        ErrorWriter errorWriter = new ConsoleErrorWriter();
-        Interpreter interpreter = new Interpreter(startingPath, errorWriter);
-        Frontend frontend = new Frontend(interpreter, errorWriter);
-        List<Stmt> program = frontend.build(sourcecode);
-        if(!interpreter.interpret(program)) {
-            System.exit(70);
         }
     }
 }
