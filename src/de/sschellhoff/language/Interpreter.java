@@ -496,21 +496,8 @@ public class Interpreter implements Visitor<Object> {
             currentPath = Misc.getDirectory(filepath).toString();
 
             String sourcecode = new String(Files.readAllBytes(filepath));
-            Scanner scanner = new Scanner(sourcecode, errorWriter);
-            List<Token> tokens = scanner.scan();
-            if(scanner.hadError()) {
-                throw new RuntimeError(stmt.keyword, "Cannot scan file");
-            }
-            Parser parser = new Parser(tokens, errorWriter);
-            List<Stmt> program = parser.parse();
-            if(parser.hadError()) {
-                throw new RuntimeError(stmt.keyword, "Cannot parse file");
-            }
-            Resolver resolver = new Resolver(this, errorWriter);
-            resolver.resolve(program);
-            if(resolver.hadError()) {
-                throw new RuntimeError(stmt.keyword, "Cannot resolve file");
-            }
+            Frontend frontend = new Frontend(this, errorWriter);
+            List<Stmt> program = frontend.build(sourcecode);
             if(!this.interpret(program)) {
                 throw new RuntimeError(stmt.keyword, "Cannot execute file");
             }

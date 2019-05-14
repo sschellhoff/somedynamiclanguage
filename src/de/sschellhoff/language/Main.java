@@ -5,14 +5,11 @@ import de.sschellhoff.language.ast.Stmt;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
-        boolean print = false;
-        boolean evaluate = true;
         String sourcecode = "";
         String startingPath = "";
         if(args.length != 1) {
@@ -29,30 +26,11 @@ public class Main {
             }
         }
         ErrorWriter errorWriter = new ConsoleErrorWriter();
-        Scanner scanner = new Scanner(sourcecode, errorWriter);
-        List<Token> tokens = scanner.scan();
-        if ( scanner.hadError() ) {
-            System.exit(65);
-        }
-        Parser parser = new Parser(tokens, errorWriter);
-        List<Stmt> program = parser.parse();
-        if ( parser.hadError() ) {
-            System.exit(65);
-        }
-        if(print) {
-            PrintVisitor printer = new PrintVisitor();
-            printer.print(program);
-        }
-        if(evaluate) {
-            Interpreter interpreter = new Interpreter(startingPath, errorWriter);
-            Resolver resolver = new Resolver(interpreter, errorWriter);
-            resolver.resolve(program);
-            if(resolver.hadError()) {
-                System.exit(65);
-            }
-            if(!interpreter.interpret(program)) {
-                System.exit(70);
-            }
+        Interpreter interpreter = new Interpreter(startingPath, errorWriter);
+        Frontend frontend = new Frontend(interpreter, errorWriter);
+        List<Stmt> program = frontend.build(sourcecode);
+        if(!interpreter.interpret(program)) {
+            System.exit(70);
         }
     }
 }
