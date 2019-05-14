@@ -86,6 +86,7 @@ def main():
     ast_data.append(("GetExpr", [base_package + ".Token"], [("Expr", "object"), ("Token", "name")], "Expr"))
     ast_data.append(("SetExpr", [base_package + ".Token"], [("Expr", "object"), ("Token", "name"), ("Expr", "value")], "Expr"))
     ast_data.append(("ThisExpr", [base_package + ".Token"], [("Token", "keyword")], "Expr"))
+    ast_data.append(("SuperExpr", [base_package + ".Token"], [("Token", "keyword"), ("Token", "method")], "Expr"))
     ast_data.append(("NullCondOpExpr", [base_package + ".Token"], [("Expr", "object"), ("Token", "name")], "Expr"))
     ast_data.append(("NullCondTopExpr", [], [("Expr", "expr")], "Expr"))
 
@@ -100,7 +101,7 @@ def main():
     ast_data.append(("ContinueStmt", [], [], "Stmt"))
     ast_data.append(("FuncDefStmt", [base_package + ".Token", "java.util.List"], [("Token", "name"), ("List<Token>", "parameters"), ("Stmt", "body")], "Stmt"))
     ast_data.append(("ReturnStmt", [base_package + ".Token"], [("Token", "keyword"), ("Expr", "value")], "Stmt"))
-    ast_data.append(("ClassDeclStmt", [base_package + ".Token", "java.util.List"], [("Token", "name"), ("List<FuncDefStmt>", "methods")], "Stmt"))
+    ast_data.append(("ClassDeclStmt", [base_package + ".Token", "java.util.List"], [("Token", "name"), ("VarExpr", "superclass"), ("List<FuncDefStmt>", "methods")], "Stmt"))
     ast_data.append(("ImportStmt", [base_package + ".Token"], [("Token", "keyword"), ("String", "filename")], "Stmt"))
     types = []
     for data in ast_data:

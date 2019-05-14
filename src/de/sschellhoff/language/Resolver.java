@@ -176,6 +176,12 @@ public class Resolver implements Visitor<Void> {
     }
 
     @Override
+    public Void visitSuperExpr(SuperExpr expr) {
+        resolveLocal(expr, expr.keyword);
+        return null;
+    }
+
+    @Override
     public Void visitNullCondOpExpr(NullCondOpExpr expr) {
         resolve(expr.object);
         return null;
@@ -273,6 +279,15 @@ public class Resolver implements Visitor<Void> {
         ClassType enclosingClass = currentClass;
         currentClass = ClassType.CLASS;
         declare(stmt.name);
+        define(stmt.name);
+        if(stmt.superclass != null) {
+            if(stmt.name.lexeme.equals(stmt.superclass.name.lexeme)) {
+                make_error(stmt.superclass.name, "a class cannot inherit itself");
+            }
+            resolve(stmt.superclass);
+            beginScope();
+            scopes.peek().put("super", true);
+        }
         beginScope();
         scopes.peek().put("this", true);
         for(FuncDefStmt method : stmt.methods) {
@@ -282,8 +297,10 @@ public class Resolver implements Visitor<Void> {
             }
             resolveFunction(method, declaration);
         }
-        define(stmt.name);
         endScope();
+        if(stmt.superclass != null) {
+            endScope();
+        }
         currentClass = enclosingClass;
         return null;
     }

@@ -29,6 +29,7 @@ public class Scanner {
         reservedWords.put("fun", TokenType.FUN);
         reservedWords.put("var", TokenType.VAR);
         reservedWords.put("class", TokenType.CLASS);
+        reservedWords.put("super", TokenType.SUPER);
         reservedWords.put("this", TokenType.THIS);
         reservedWords.put("import", TokenType.IMPORT);
         reservedWords.put("return", TokenType.RETURN);

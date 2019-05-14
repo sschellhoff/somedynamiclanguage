@@ -128,7 +128,7 @@ public class PrintVisitor implements Visitor<String> {
     @Override
     public String visitClassDeclStmt(ClassDeclStmt stmt) {
         StringBuilder sb = new StringBuilder();
-        sb.append("(class [" + stmt.name.lexeme + "]");
+        sb.append("(class [" + stmt.name.lexeme + (stmt.superclass != null ? " : " + stmt.superclass.accept(this) : "") + "]");
         for(Stmt st : stmt.methods) {
             sb.append(" ");
             sb.append(st.accept(this));
@@ -178,6 +178,11 @@ public class PrintVisitor implements Visitor<String> {
     @Override
     public String visitThisExpr(ThisExpr expr) {
         return "this";
+    }
+
+    @Override
+    public String visitSuperExpr(SuperExpr expr) {
+        return parenthesize("super " + expr.keyword.lexeme + "." + expr.method);
     }
 
     @Override

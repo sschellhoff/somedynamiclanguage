@@ -100,13 +100,18 @@ public class Parser {
     private Stmt class_definition() {
         match_or_error(TokenType.CLASS, "expected class definition");
         Token name = consume_or_error(TokenType.IDENTIFIER, "expected class name");
+        VarExpr superclass = null;
+        if(match(TokenType.COLON)) {
+            match_or_error(TokenType.IDENTIFIER, "expected name of superclass");
+            superclass = new VarExpr(previous());
+        }
         match_or_error(TokenType.LEFT_BRACE, "expected class body");
         List<FuncDefStmt> methods = new ArrayList<>();
         while(!check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
             methods.add(function_definition("method"));
         }
         consume_or_error(TokenType.RIGHT_BRACE, "expected } to close the class body");
-        return new ClassDeclStmt(name, methods);
+        return new ClassDeclStmt(name, superclass, methods);
     }
 
     private Stmt returnStmt() {
@@ -261,7 +266,7 @@ public class Parser {
         Expr condition = null_coalescing();
 
         while (match(TokenType.QUESTION_MARK)) {
-            Expr then_part = null_coalescing();
+            Expr then_part = expression();
             match_or_error(TokenType.COLON, "expected : as part of the ternary operator");
             Expr else_part = null_coalescing();
             return new TernaryExpr(condition, then_part, else_part);
@@ -404,6 +409,12 @@ public class Parser {
         }
         if(match(TokenType.THIS)) {
             return new ThisExpr(previous());
+        }
+        if(match(TokenType.SUPER)) {
+            Token keyword = previous();
+            match_or_error(TokenType.DOT, "expected . after super");
+            Token method = consume_or_error(TokenType.IDENTIFIER, "expected method name of superclass");
+            return new SuperExpr(keyword, method);
         }
         if(match(TokenType.FALSE)) {
             return new LiteralExpr(false);
