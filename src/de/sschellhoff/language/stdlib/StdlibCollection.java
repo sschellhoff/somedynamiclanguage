@@ -2,6 +2,7 @@ package de.sschellhoff.language.stdlib;
 
 import de.sschellhoff.language.extension.ModuleCollection;
 import de.sschellhoff.language.extension.ModuleLoader;
+import de.sschellhoff.language.stdlib.array.Array;
 import de.sschellhoff.language.stdlib.casting.Casting;
 
 import java.util.Map;
@@ -13,6 +14,7 @@ public class StdlibCollection implements ModuleCollection {
 
     public StdlibCollection() {
         modules.put("cast", new Casting());
+        modules.put("array", new Array());
     }
     @Override
     public boolean contains(String moduleName) {

@@ -629,7 +629,11 @@ public class Interpreter implements Visitor<Object> {
         if(!(size instanceof Integer)) {
             throw new RuntimeError(expr.paren, "Array-size must be of type int");
         }
-        return new Object[(int)size];
+        int _size = (Integer)size;
+        if(_size <= 0) {
+            throw new RuntimeError(expr.paren, "Array-size must be greater than 0");
+        }
+        return new Object[_size];
     }
 
     @Override
