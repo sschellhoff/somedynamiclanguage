@@ -1,6 +1,10 @@
 package de.sschellhoff.language;
 
 import de.sschellhoff.language.ast.*;
+import de.sschellhoff.language.extension.ExtensionFunction;
+import de.sschellhoff.language.extension.ExtensionRuntimeError;
+import de.sschellhoff.language.extension.ModuleLoader;
+import de.sschellhoff.language.stdlib.StdlibCollection;
 
 import javax.security.auth.callback.LanguageCallback;
 import java.io.EOFException;
@@ -11,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.cert.Extension;
 import java.util.*;
 
 public class Interpreter implements Visitor<Object> {
@@ -25,6 +30,13 @@ public class Interpreter implements Visitor<Object> {
         this.errorWriter = errorWriter;
         this.currentPath = Misc.getDirectory(startingFile);
         loadedModules.add(startingFile);
+        StdlibCollection stdlibCollection = new StdlibCollection();
+        for(String moduleName : stdlibCollection.getModuleNames()) {
+            ModuleLoader moduleLoader = stdlibCollection.get(moduleName);
+            for(ExtensionFunction extFunc : moduleLoader.getFunctions()) {
+                globals.define(Token.identifier(extFunc.getName()), extFunc);
+            }
+        }
         globals.define(Token.identifier("clock"), new LangCallable() {
 
             @Override
@@ -38,7 +50,7 @@ public class Interpreter implements Visitor<Object> {
             }
 
             @Override
-            public String toString() { return "< fun clock>"; }
+            public String toString() { return "<fun clock>"; }
         });
         globals.define(Token.identifier("str"), new LangCallable() {
             @Override
@@ -546,7 +558,11 @@ public class Interpreter implements Visitor<Object> {
             throw new RuntimeError(expr.paren, "Expected " + function.arity() + " arguments but got " + arguments.size());
         }
 
-        return function.call(this, arguments);
+        try {
+            return function.call(this, arguments);
+        } catch(ExtensionRuntimeError ere) {
+            throw new RuntimeError(expr.paren, ere.getMessage());
+        }
     }
 
     @Override
