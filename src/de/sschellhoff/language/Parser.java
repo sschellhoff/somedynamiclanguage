@@ -255,6 +255,9 @@ public class Parser {
             } else if(expr instanceof GetExpr) {
                 GetExpr get = (GetExpr)expr;
                 return new SetExpr(get.object, get.name, value);
+            } else if(expr instanceof ArrayGetExpr) {
+                ArrayGetExpr arrayGet = (ArrayGetExpr)expr;
+                return new ArraySetExpr(arrayGet.array, arrayGet.paren, arrayGet.idx, value);
             }
             make_error(equals, "invalid assignment target");
         }
@@ -381,6 +384,11 @@ public class Parser {
                 is_null_conditional = true;
                 Token name = consume_or_error(TokenType.IDENTIFIER, "expected property");
                 expr = new NullCondOpExpr(expr, name);
+            } else if(match(TokenType.LEFT_BRACKET)) {
+                Token open_bra = previous();
+                Expr idx = expression();
+                match_or_error(TokenType.RIGHT_BRACKET, "expected ]");
+                expr = new ArrayGetExpr(expr, open_bra, idx);
             } else {
                 break;
             }
@@ -432,6 +440,12 @@ public class Parser {
             Expr expr = expression();
             match_or_error(TokenType.RIGHT_PAREN, "Missing ) after expression");
             return new GroupingExpr(expr);
+        }
+        if(match(TokenType.LEFT_BRACKET)) {
+            Token paren = previous();
+            Expr size = expression();
+            match_or_error(TokenType.RIGHT_BRACKET, "Missing ] after array declaration");
+            return new ArrayCreateExpr(size, paren);
         }
         make_error("Expected expression");
         return null; // never triggered

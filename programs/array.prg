@@ -1,0 +1,10 @@
+var somearray = [5];
+somearray[0] = 13;
+somearray[1] = [2];
+somearray[1][1] = 42;
+print somearray[0];
+print somearray[1][1];
+var otherarray = [5];
+print otherarray[0];
+otherarray[0] = 13;
+print otherarray[0];

@@ -199,6 +199,27 @@ public class Resolver implements Visitor<Void> {
     }
 
     @Override
+    public Void visitArrayCreateExpr(ArrayCreateExpr expr) {
+        resolve(expr.size);
+        return null;
+    }
+
+    @Override
+    public Void visitArrayGetExpr(ArrayGetExpr expr) {
+        resolve(expr.array);
+        resolve(expr.idx);
+        return null;
+    }
+
+    @Override
+    public Void visitArraySetExpr(ArraySetExpr expr) {
+        resolve(expr.array);
+        resolve(expr.idx);
+        resolve(expr.value);
+        return null;
+    }
+
+    @Override
     public Void visitExprStmt(ExprStmt stmt) {
         resolve(stmt.expr);
         return null;

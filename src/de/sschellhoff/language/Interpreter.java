@@ -624,6 +624,53 @@ public class Interpreter implements Visitor<Object> {
     }
 
     @Override
+    public Object visitArrayCreateExpr(ArrayCreateExpr expr) {
+        Object size = evaluate(expr.size);
+        if(!(size instanceof Integer)) {
+            throw new RuntimeError(expr.paren, "Array-size must be of type int");
+        }
+        return new Object[(int)size];
+    }
+
+    @Override
+    public Object visitArrayGetExpr(ArrayGetExpr expr) {
+        Object lhs = evaluate(expr.array);
+        if(!(lhs instanceof Object[])) {
+            throw new RuntimeError(expr.paren, "you can only index array types");
+        }
+        Object idx = evaluate(expr.idx);
+        if(!(idx instanceof Integer)) {
+            throw new RuntimeError(expr.paren, "array index must be of type int");
+        }
+        Object[] array = (Object[])lhs;
+        int index = (Integer)idx;
+        if(index >= array.length) {
+            throw new RuntimeError(expr.paren, "index out of bounds");
+        }
+        return array[index];
+    }
+
+    @Override
+    public Object visitArraySetExpr(ArraySetExpr expr) {
+        Object lhs = evaluate(expr.array);
+        if(!(lhs instanceof Object[])) {
+            throw new RuntimeError(expr.paren, "you can only index array types");
+        }
+        Object idx = evaluate(expr.idx);
+        if(!(idx instanceof Integer)) {
+            throw new RuntimeError(expr.paren, "array index must be of type int");
+        }
+        Object value = evaluate(expr.value);
+        Object[] array = (Object[])lhs;
+        int index = (Integer)idx;
+        if(index >= array.length) {
+            throw new RuntimeError(expr.paren, "index out of bounds");
+        }
+        array[index] = value;
+        return value;
+    }
+
+    @Override
     public Object visitExprStmt(ExprStmt stmt) {
         evaluate(stmt.expr);
         return null;

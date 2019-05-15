@@ -196,6 +196,21 @@ public class PrintVisitor implements Visitor<String> {
     }
 
     @Override
+    public String visitArrayCreateExpr(ArrayCreateExpr expr) {
+        return parenthesize("array_create", expr.size);
+    }
+
+    @Override
+    public String visitArrayGetExpr(ArrayGetExpr expr) {
+        return parenthesize("array_get", expr.array, expr.idx);
+    }
+
+    @Override
+    public String visitArraySetExpr(ArraySetExpr expr) {
+        return parenthesize("array_set", expr.array, expr.idx, expr.value);
+    }
+
+    @Override
     public String visitExprStmt(ExprStmt stmt) {
         return parenthesize("expr", stmt.expr);
     }

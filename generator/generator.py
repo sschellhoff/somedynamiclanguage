@@ -89,6 +89,9 @@ def main():
     ast_data.append(("SuperExpr", [base_package + ".Token"], [("Token", "keyword"), ("Token", "method")], "Expr"))
     ast_data.append(("NullCondOpExpr", [base_package + ".Token"], [("Expr", "object"), ("Token", "name")], "Expr"))
     ast_data.append(("NullCondTopExpr", [], [("Expr", "expr")], "Expr"))
+    ast_data.append(("ArrayCreateExpr", [base_package + ".Token"], [("Expr", "size"), ("Token", "paren")], "Expr"))
+    ast_data.append(("ArrayGetExpr", [base_package + ".Token"], [("Expr", "array"), ("Token", "paren"), ("Expr", "idx")], "Expr"))
+    ast_data.append(("ArraySetExpr", [base_package + ".Token"], [("Expr", "array"), ("Token", "paren"), ("Expr", "idx"), ("Expr", "value", ("Expr", "value"))], "Expr"))
 
     ast_data.append(("Stmt", [], None, None))
     ast_data.append(("ExprStmt", [], [("Expr", "expr")], "Stmt"))
