@@ -1,6 +1,6 @@
 class DynArray {
     fun init(size) {
-        this.length = size;
+        this.length = 0;
         this.data = [size];
     }
 

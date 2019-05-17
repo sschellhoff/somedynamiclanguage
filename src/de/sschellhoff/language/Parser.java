@@ -161,7 +161,11 @@ public class Parser {
         Stmt then_branch = block();
         Stmt else_branch = null;
         if(match(TokenType.ELSE)) {
-            else_branch = block();
+            if ( peek().type == TokenType.IF) {
+                else_branch = ifStmt();
+            } else {
+                else_branch = block();
+            }
         }
         return new IfElseStmt(condition, then_branch, else_branch);
     }
