@@ -11,6 +11,7 @@ The language itself, and it's implementation, is based on Crafting interpreters 
 * array
 * function
 * class
+
 You don't tell the interpreter what type of data you want, as it is a dynamic language. A variable of type int can change it's type at runtime, so you can set a variable to the value 1337 of type int, and to the value "Hello, World" of type string later.
 
 ## examples
